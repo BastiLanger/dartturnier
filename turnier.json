@@ -1,9 +1,14 @@
 {
  "name": "Dartturnier",
  "status": "setup",
- "players": {},
+ "players": {
+  "ln9rmisn": {
+   "name": "Basti",
+   "createdAt": 1793050682946
+  }
+ },
  "results": {},
  "bestOf": {},
  "playerIds": [],
- "updatedAt": 1793050616920
+ "updatedAt": 1793050682946
 }
