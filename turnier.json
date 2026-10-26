@@ -17,6 +17,10 @@
   "tyo6cuoe": {
    "name": "Brück",
    "createdAt": 1793050701466
+  },
+  "7fuak9hu": {
+   "name": "Wolf",
+   "createdAt": 1793050764324
   }
  },
  "results": {},
@@ -25,7 +29,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793050760241,
+ "updatedAt": 1793050764324,
  "seed": 170001275,
  "drawId": null,
  "drawnAt": 1793050727689
