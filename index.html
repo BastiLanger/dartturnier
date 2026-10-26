@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dartturnier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+
+/* Layout: Kopf mit Turniername, Reiter (Spieler · Turnierbaum · Lucky Loser · Statistik), Baum als horizontal scrollende Rundenspalten */
+:root{
+  --bg:#eef1ee; --surface:#ffffff; --surface-2:#f6f8f6; --ink:#131915; --muted:#5a675f; --line:#d3dbd5;
+  --red:#c32432; --green:#16704a; --win-bg:#e4f2ea; --gold:#a66d00;
+  --f-display:"Saira Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1310; --surface:#171f1a; --surface-2:#1d2620; --ink:#e7ede8; --muted:#94a49a; --line:#2b362f;
+  --red:#ee5562; --green:#45b884; --win-bg:#1c3327; --gold:#e0a63a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1310; --surface:#171f1a; --surface-2:#1d2620; --ink:#e7ede8; --muted:#94a49a; --line:#2b362f;
+  --red:#ee5562; --green:#45b884; --win-bg:#1c3327; --gold:#e0a63a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 120px}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+header{display:flex;flex-direction:column;gap:6px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,7vw,52px);line-height:.95;letter-spacing:.01em;text-transform:uppercase;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:15px}
+.segs{display:flex;height:6px;border-radius:3px;overflow:hidden;max-width:220px}
+.segs i{flex:1}.segs i:nth-child(odd){background:var(--red)}.segs i:nth-child(even){background:var(--green)}
+
+nav{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line)}
+nav button{font:600 15px var(--f-body);color:var(--muted);background:none;border:0;padding:10px 12px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav button[aria-selected="true"]{color:var(--ink);border-color:var(--red)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+.panel{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.label{font:700 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.row-in{display:flex;gap:8px;flex-wrap:wrap}
+input[type=text]{flex:1 1 200px;min-width:0;font:16px var(--f-body);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink)}
+.btn{font:700 15px var(--f-body);border-radius:8px;padding:10px 16px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.danger{color:var(--red)}
+.btn.danger.armed{background:var(--red);border-color:var(--red);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.plist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.plist li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;background:var(--surface-2);border-radius:6px;min-width:0}
+.plist li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.x{border:0;background:none;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:0 4px}
+.plan{margin:0;padding-left:18px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+.hint{color:var(--muted);font-size:14px;margin:0}
+.empty{color:var(--muted);text-align:center;padding:28px 12px;border:1px dashed var(--line);border-radius:10px}
+
+.bracket{display:flex;gap:18px;overflow-x:auto;padding-bottom:8px;align-items:stretch}
+.col{flex:0 0 210px;display:flex;flex-direction:column;gap:10px}
+.colhead{display:flex;flex-direction:column;gap:4px}
+.colhead h3{font-family:var(--f-display);font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.02em;margin:0}
+.colhead .meta{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px}
+.colhead select{font:600 13px var(--f-body);padding:3px 6px;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink)}
+.matches{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:12px}
+.match{all:unset;box-sizing:border-box;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;width:100%}
+.match:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.match[aria-disabled="true"]{cursor:default}
+.match .no{font:600 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:5px 10px 0}
+.match .pl{display:flex;justify-content:space-between;gap:8px;padding:6px 10px;min-width:0}
+.match .pl+.pl{border-top:1px solid var(--line)}
+.match .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.match .nm.tbd{color:var(--muted);font-style:italic}
+.match .lg{font-family:var(--f-display);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums;min-width:1ch;text-align:right}
+.match .pl.w{background:var(--win-bg);font-weight:700}
+.match .pl.l{color:var(--muted)}
+.match.open{border-color:var(--green)}
+.match.open .no::after{content:" · offen";color:var(--green)}
+.champ{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--gold);border-radius:10px;padding:14px 16px}
+.champ b{font-family:var(--f-display);font-size:30px;text-transform:uppercase;line-height:1}
+.group{display:flex;flex-direction:column;gap:10px}
+.group h2{font-family:var(--f-display);font-size:24px;text-transform:uppercase;margin:0}
+.group h2 small{font-family:var(--f-body);font-size:14px;text-transform:none;color:var(--muted);font-weight:400;margin-left:6px}
+
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:700 12px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+th:nth-child(2),td:nth-child(2),th:last-child,td:last-child{text-align:left}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+.pill.on{background:var(--win-bg);color:var(--green)}
+.pill.gold{color:var(--gold)}
+.pill.ll{color:var(--red)}
+
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-top:1px solid var(--line);border-radius:16px 16px 0 0;
+  padding:18px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.sheet h3{font-family:var(--f-display);font-size:24px;text-transform:uppercase;margin:0;line-height:1.1}
+.scores{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px}
+.scores button{font:700 20px var(--f-display);font-variant-numeric:tabular-nums;padding:12px 0;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer}
+.scores button.cur{background:var(--green);border-color:var(--green);color:#fff}
+.scoregrp{display:flex;flex-direction:column;gap:6px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:30;max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion: no-preference){.match{transition:border-color .15s}}
+
+.linkbtn{all:unset;cursor:pointer;color:var(--green);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.linkbtn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.save.ok{color:var(--green)}.save.pending{color:var(--muted)}.save.err{color:var(--red);font-weight:700}
+footer{color:var(--muted);font-size:14px}
+.btn.primary.armed{background:var(--red);border-color:var(--red)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="title">Dartturnier</h1>
+    <div class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="sub" id="sub">Lade Turnierstand …</div>
+  </header>
+  <nav id="tabs" role="tablist"></nav>
+  <main id="main" class="panel"><div class="empty">Lade Turnierstand …</div></main>
+  <footer id="foot"></footer>
+</div>
+<div id="sheetRoot"></div>
+<div id="toastRoot"></div>
+<script>
+
+const BYE = "__BYE__";
+const S = { db:null, canWrite:true, config:{}, players:{}, results:{}, loaded:{c:false,p:false,r:false},
+  tab:null, confirm:null, sheet:null, matchIndex:{}, built:null };
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const nextPow2 = n => { let p = 1; while (p < n) p *= 2; return p; };
+const ROUND_NAMES = {2:"Finale",4:"Halbfinale",8:"Viertelfinale",16:"Achtelfinale",32:"Sechzehntelfinale",64:"1/32-Finale"};
+const roundName = n => ROUND_NAMES[n] || null;
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffle(arr, rng){ const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const bestOf = key => (S.config.bestOf || {})[key] || 3;
+const validScore = (l1, l2, bo) => { const t = Math.ceil(bo / 2); return Number.isInteger(l1) && Number.isInteger(l2) && Math.max(l1, l2) === t && Math.min(l1, l2) >= 0 && Math.min(l1, l2) < t; };
+const pname = id => id === BYE ? "Freilos" : (S.players[id]?.name || "Unbekannt");
+const sortedPlayers = () => Object.entries(S.players).sort((a, b) => (a[1].createdAt || 0) - (b[1].createdAt || 0));
+
+/* ---------- Turnierlogik (deterministisch aus Seed + Ergebnissen) ---------- */
+function mk(id, a, b, key, ph){
+  const m = { id, a, b, key, bo: bestOf(key), done:false, winner:null, loser:null, l1:null, l2:null, bye:false, ph: ph || [] };
+  if (a === BYE || b === BYE) {
+    const other = a === BYE ? b : a;
+    if (other == null) return m;
+    m.bye = true; m.done = true; m.winner = other; return m;
+  }
+  if (a == null || b == null) return m;
+  const r = S.results[id];
+  if (r && r.drawId === S.config.drawId && r.p1 === a && r.p2 === b && validScore(r.l1, r.l2, m.bo)) {
+    m.done = true; m.l1 = r.l1; m.l2 = r.l2;
+    m.winner = r.l1 > r.l2 ? a : b; m.loser = r.l1 > r.l2 ? b : a;
+  }
+  return m;
+}
+function ko(entrants, idFn, keyFn, labelFn, firstPh){
+  const rounds = []; let cur = entrants, r = 0, ph = firstPh || [];
+  while (cur.length > 1) {
+    const ms = [];
+    for (let i = 0; i < cur.length / 2; i++) ms.push(mk(idFn(r, i), cur[2*i], cur[2*i+1], keyFn(r), [ph[2*i], ph[2*i+1]]));
+    rounds.push({ key: keyFn(r), label: labelFn(r, cur.length), matches: ms });
+    ph = ms.map((m, i) => "Sieger " + labelFn(r, cur.length) + (ms.length > 1 ? " " + (i + 1) : ""));
+    cur = ms.map(m => m.done ? m.winner : null); r++;
+  }
+  return { rounds, champion: cur[0] ?? null };
+}
+function build(){
+  const c = S.config; if (c.status !== "running" || !Array.isArray(c.playerIds)) return null;
+  const order = shuffle(c.playerIds, mulberry32(c.seed >>> 0));
+  const N = order.length;
+  const r1 = [];
+  for (let i = 0; i < Math.floor(N / 2); i++) r1.push(mk("R1-" + i, order[2*i], order[2*i+1], "R1"));
+  if (N % 2) r1.push(mk("R1-bye", order[N-1], BYE, "R1"));
+  const res = { N, W: Math.ceil(N / 2), T:0, k:0, groups:[], main:[], champion:null, losersKnown:false };
+  res.main.push({ key:"R1", label: roundName(N) || "Runde 1", matches: r1 });
+  if (res.W === 1) { res.champion = r1[0].done ? r1[0].winner : null; return res; }
+  const T = nextPow2(res.W), k = T - res.W; res.T = T; res.k = k;
+
+  // Lucky Loser: Verlierer der 1. Runde werden auf k Gruppen gelost, jede Gruppe spielt einen Platz aus
+  const real = r1.filter(m => !m.bye);
+  const allDone = real.every(m => m.done);
+  res.losersKnown = allDone;
+  const losers = allDone ? shuffle(real.map(m => m.loser), mulberry32((c.seed ^ 0x9e3779b9) >>> 0)) : real.map(() => null);
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for (let j = 0; j < k; j++) {
+    const mem = losers.filter((_, i) => i % k === j);
+    const n = mem.length, P = nextPow2(n), byes = P - n;
+    const ent = [], ph = []; let idx = 0;
+    for (let p = 0; p < P / 2; p++) {
+      if (p < byes) { ent.push(mem[idx++], BYE); ph.push("Verlierer Runde 1", ""); }
+      else { ent.push(mem[idx++], mem[idx++]); ph.push("Verlierer Runde 1", "Verlierer Runde 1"); }
+    }
+    const g = n === 1 ? { rounds: [], champion: mem[0] }
+      : ko(ent, (r, i) => "LL" + j + "-" + r + "-" + i, () => "LL",
+           (r, size) => size === 2 ? "Gruppenfinale" : "Runde " + (r + 1), ph);
+    res.groups.push({ name: "Gruppe " + letters[j % 26], size: n, ...g });
+  }
+  // Startfeld der 2. Runde: Lucky-Loser-Plätze verteilt, damit sich zwei Lucky Loser nicht direkt treffen
+  const llPos = []; for (let j = 0; j < k; j++) llPos.push(2 * Math.floor(j * (T / 2) / k) + 1);
+  const ent = [], ph = []; let wi = 0, gi = 0;
+  for (let s = 0; s < T; s++) {
+    if (llPos.includes(s)) { const g = res.groups[gi]; ent.push(g.champion); ph.push("Lucky Loser " + g.name.slice(-1)); gi++; }
+    else { const m = r1[wi++]; ent.push(m.done ? m.winner : null); ph.push(m.bye ? "Freilos-Spieler" : "Sieger Spiel " + (r1.indexOf(m) + 1)); }
+  }
+  const rest = ko(ent, (r, i) => "R" + (r + 2) + "-" + i, r => "R" + (r + 2), (r, size) => roundName(size) || "Runde " + (r + 2), ph);
+  res.main.push(...rest.rounds); res.champion = rest.champion;
+  return res;
+}
+function stats(b){
+  const st = {};
+  for (const id of S.config.playerIds || []) st[id] = { id, sp:0, s:0, n:0, lf:0, la:0, status:"im Turnier", cls:"on" };
+  const tally = m => {
+    if (!m.done || m.bye) return;
+    const A = st[m.a], B = st[m.b]; if (!A || !B) return;
+    A.sp++; B.sp++; A.lf += m.l1; A.la += m.l2; B.lf += m.l2; B.la += m.l1;
+    st[m.winner].s++; st[m.loser].n++;
+  };
+  const out = (id, txt, cls) => { if (st[id]) { st[id].status = txt; st[id].cls = cls; } };
+  b.main[0].matches.forEach(m => { tally(m); if (m.done && m.loser) b.k > 0 ? out(m.loser, "Lucky Loser", "ll") : out(m.loser, "raus · " + b.main[0].label, ""); });
+  b.groups.forEach(g => {
+    g.rounds.forEach(r => r.matches.forEach(m => { tally(m); if (m.done && m.loser) out(m.loser, "raus · Lucky Loser", ""); }));
+    if (g.champion && b.losersKnown) out(g.champion, "im Turnier (LL)", "on");
+  });
+  b.main.slice(1).forEach(r => r.matches.forEach(m => { tally(m); if (m.done && m.loser) out(m.loser, "raus · " + r.label, ""); }));
+  if (b.champion) out(b.champion, "Turniersieger", "gold");
+  return Object.values(st).sort((x, y) => y.s - x.s || (y.lf - y.la) - (x.lf - x.la) || y.lf - x.lf || pname(x.id).localeCompare(pname(y.id)));
+}
+function planText(N){
+  if (N < 2) return ["Mindestens 2 Spieler nötig."];
+  const W = Math.ceil(N / 2), L = Math.floor(N / 2), out = [];
+  out.push(`${roundName(N) || "Runde 1"}: ${L} Spiel${L > 1 ? "e" : ""}${N % 2 ? " und 1 Freilos" : ""}`);
+  if (W > 1) {
+    const T = nextPow2(W), k = T - W, nm = roundName(T) || "Runde 2";
+    if (k > 0) out.push(`Lucky Loser: ${L} Verlierer spielen in ${k} Gruppe${k > 1 ? "n" : ""} um ${k} Platz${k > 1 ? "e" : ""} im ${nm}`);
+    out.push(`Danach ${nm} mit ${T} Spielern im K.-o.-System`);
+  }
+  return out;
+}
+
+
+/* ---------- Speicher: GitHub (Zweig "daten", Datei turnier.json) ---------- */
+const DATA_BRANCH = "daten", DATA_FILE = "turnier.json", POLL_MS = 60000;
+const LS = { get(k){ try { return localStorage.getItem(k); } catch { return null; } }, set(k, v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+S.mode = "viewer"; S.canWrite = false; S.sha = null; S.saveState = ""; S.repo = null; S.token = null; S.missing = false; S.lastFetch = null; S.setup = false;
+
+function detectRepo(){
+  const h = location.hostname;
+  if (h.endsWith(".github.io")) {
+    const owner = h.split(".")[0];
+    const seg = location.pathname.split("/").filter(Boolean)[0];
+    return { owner, repo: seg && !seg.includes(".") ? seg : h };
+  }
+  const o = LS.get("dt_owner"), r = LS.get("dt_repo");
+  return o && r ? { owner:o, repo:r } : null;
+}
+const b64enc = s => { const by = new TextEncoder().encode(s); let bin = ""; for (const b of by) bin += String.fromCharCode(b); return btoa(bin); };
+const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g, "")), c => c.charCodeAt(0)));
+function gh(path, opts = {}){
+  const headers = { "Accept":"application/vnd.github+json", "Authorization":"Bearer " + S.token };
+  if (opts.body) headers["Content-Type"] = "application/json";
+  return fetch("https://api.github.com/repos/" + S.repo.owner + "/" + S.repo.repo + path, { ...opts, headers, cache:"no-store" });
+}
+const emptyData = () => ({ name:"Dartturnier", status:"setup", players:{}, results:{}, bestOf:{}, playerIds:[], updatedAt: Date.now() });
+function applyData(d){
+  d = d && typeof d === "object" ? d : emptyData();
+  d.players ||= {}; d.results ||= {}; d.bestOf ||= {};
+  S.config = d; S.players = d.players; S.results = d.results;
+  S.loaded = { c:true, p:true, r:true };
+}
+
+/* Zuschauer: Datei direkt lesen (GitHub hält sie bis zu einige Minuten zwischengespeichert) */
+async function viewerLoad(){
+  if (!S.repo) { S.missing = true; applyData(null); render(); return; }
+  try {
+    const url = `https://raw.githubusercontent.com/${S.repo.owner}/${S.repo.repo}/${DATA_BRANCH}/${DATA_FILE}`;
+    const r = await fetch(url, { cache:"no-store" });
+    if (r.status === 404) { S.missing = true; applyData(null); }
+    else if (r.ok) { S.missing = false; applyData(await r.json()); S.lastFetch = Date.now(); }
+  } catch {}
+  render();
+}
+
+/* Turnierleitung: über die GitHub-Schnittstelle lesen und schreiben */
+async function ensureDataFile(){
+  let r = await gh(`/contents/${DATA_FILE}?ref=${DATA_BRANCH}`);
+  if (r.ok) { const j = await r.json(); S.sha = j.sha; return JSON.parse(b64dec(j.content)); }
+  if (r.status !== 404) throw new Error("read " + r.status);
+  const ref = await gh(`/git/ref/heads/${DATA_BRANCH}`);
+  if (ref.status === 404) {
+    const repo = await (await gh("")).json();
+    const base = await (await gh(`/git/ref/heads/${repo.default_branch}`)).json();
+    const c = await gh(`/git/refs`, { method:"POST", body: JSON.stringify({ ref:"refs/heads/" + DATA_BRANCH, sha: base.object.sha }) });
+    if (!c.ok) throw new Error("branch " + c.status);
+  }
+  const d = emptyData();
+  const p = await gh(`/contents/${DATA_FILE}`, { method:"PUT", body: JSON.stringify({ message:"Turnier angelegt", content: b64enc(JSON.stringify(d, null, 1)), branch: DATA_BRANCH }) });
+  if (!p.ok) throw new Error("create " + p.status);
+  S.sha = (await p.json()).content.sha;
+  return d;
+}
+async function connect(token, owner, repo){
+  S.token = token; S.repo = { owner, repo };
+  const r = await gh("");
+  if (r.status === 401) throw new Error("Der Zugangsschlüssel ist ungültig oder abgelaufen.");
+  if (r.status === 404) throw new Error("Repository nicht gefunden. Prüfe Benutzername, Repository-Namen und ob der Schlüssel Zugriff darauf hat.");
+  if (!r.ok) throw new Error("GitHub antwortet nicht wie erwartet (Fehler " + r.status + ").");
+  const j = await r.json();
+  if (j.permissions && j.permissions.push === false) throw new Error("Der Schlüssel darf in dieses Repository nicht schreiben.");
+  const d = await ensureDataFile();
+  LS.set("dt_token", token);
+  if (!location.hostname.endsWith(".github.io")) { LS.set("dt_owner", owner); LS.set("dt_repo", repo); }
+  S.mode = "admin"; S.canWrite = true; S.saveState = "ok"; S.setup = false;
+  applyData(d);
+}
+function disconnect(){ LS.set("dt_token", null); S.token = null; S.mode = "viewer"; S.canWrite = false; S.tab = null; viewerLoad(); }
+
+let saveTimer = null, saving = false, dirty = false;
+function save(){ S.config.updatedAt = Date.now(); dirty = true; S.saveState = "pending"; render(); clearTimeout(saveTimer); saveTimer = setTimeout(push, 800); }
+async function push(retry = true){
+  if (saving) { saveTimer = setTimeout(push, 500); return; }
+  if (!dirty) return;
+  saving = true; dirty = false;
+  try {
+    const body = { message:"Turnierstand aktualisiert", content: b64enc(JSON.stringify(S.config, null, 1)), branch: DATA_BRANCH, sha: S.sha };
+    const r = await gh(`/contents/${DATA_FILE}`, { method:"PUT", body: JSON.stringify(body) });
+    if (r.ok) { S.sha = (await r.json()).content.sha; S.saveState = dirty ? "pending" : "ok"; }
+    else if ((r.status === 409 || r.status === 422) && retry) {
+      // Datei wurde anderswo geändert (z. B. zweites Gerät): aktuelle Version holen und den eigenen Stand darüber speichern
+      const g = await gh(`/contents/${DATA_FILE}?ref=${DATA_BRANCH}`); if (g.ok) S.sha = (await g.json()).sha;
+      dirty = true; saving = false; return push(false);
+    }
+    else if (r.status === 401) { S.saveState = "err"; toast("Der Zugangsschlüssel ist abgelaufen. Melde dich unter „Turnierleitung“ neu an."); dirty = true; }
+    else { S.saveState = "err"; dirty = true; }
+  } catch { S.saveState = "err"; dirty = true; }
+  saving = false; render();
+}
+
+/* ---------- Änderungen ---------- */
+function toast(msg){ const r = $("#toastRoot"); r.innerHTML = `<div class="toast" role="status">${esc(msg)}</div>`; clearTimeout(toast.t); toast.t = setTimeout(() => r.innerHTML = "", 3500); }
+const newId = () => Math.random().toString(36).slice(2, 10);
+function addPlayers(raw){
+  const names = raw.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean);
+  if (!names.length) return;
+  const t = Date.now();
+  names.forEach((n, i) => S.players[newId()] = { name: n.slice(0, 40), createdAt: t + i });
+  save();
+}
+function draw(){
+  const ids = sortedPlayers().map(([id]) => id);
+  if (ids.length < 2) return toast("Mindestens 2 Spieler nötig.");
+  Object.assign(S.config, { status:"running", seed:(Math.random() * 4294967296) >>> 0, drawId:newId(), playerIds:ids, drawnAt:Date.now() });
+  S.config.results = {}; S.results = S.config.results;
+  S.tab = "baum"; save(); toast("Turnierbaum ausgelost");
+}
+function resetT(){
+  Object.assign(S.config, { status:"setup", playerIds:[], drawId:null, results:{} }); S.results = S.config.results;
+  S.tab = "spieler"; save(); toast("Turnier zurückgesetzt");
+}
+function arm(which, fn){
+  if (S.confirm === which) { S.confirm = null; fn(); return; }
+  S.confirm = which; render();
+  clearTimeout(arm.t); arm.t = setTimeout(() => { S.confirm = null; render(); }, 4000);
+}
+
+/* ---------- Darstellung ---------- */
+function matchCard(m, no){
+  S.matchIndex[m.id] = m;
+  const playable = S.canWrite && m.a && m.b && m.a !== BYE && m.b !== BYE;
+  const side = (id, legs, ph) => {
+    const known = id != null;
+    const cls = m.done && !m.bye ? (m.winner === id ? "w" : "l") : (m.bye && id !== BYE ? "w" : (id === BYE ? "l" : ""));
+    const txt = known ? pname(id) : (ph || "offen");
+    return `<div class="pl ${cls}"><span class="nm ${known ? "" : "tbd"}">${esc(txt)}</span><span class="lg">${m.done && !m.bye ? legs : ""}</span></div>`;
+  };
+  const open = playable && !m.done;
+  return `<div class="match ${open ? "open" : ""}" role="button" tabindex="${playable ? 0 : -1}" aria-disabled="${!playable}" data-m="${esc(m.id)}">
+    <span class="no">${no ? esc(no) : ""}${m.bye ? "Freilos" : ""}</span>${side(m.a, m.l1, m.ph[0])}${side(m.b, m.l2, m.ph[1])}</div>`;
+}
+function boSelect(key, round){
+  const hasRes = round.matches.some(m => m.done && !m.bye);
+  const opts = [1,3,5,7,9,11].map(v => `<option value="${v}" ${bestOf(key) === v ? "selected" : ""}>Best of ${v}</option>`).join("");
+  return S.canWrite && !hasRes ? `<select id="bo-${key}" data-bo="${key}" aria-label="Legs pro Match">${opts}</select>` : `<span>Best of ${bestOf(key)}</span>`;
+}
+function column(round, numbered){
+  const n = round.matches.length;
+  return `<div class="col"><div class="colhead"><h3>${esc(round.label)}</h3>
+    <div class="meta"><span>${n} Spiel${n > 1 ? "e" : ""}</span>${round.key === "LL" ? "" : boSelect(round.key, round)}</div></div>
+    <div class="matches">${round.matches.map((m, i) => matchCard(m, numbered && !m.bye ? "Spiel " + (i + 1) : "")).join("")}</div></div>`;
+}
+function renderSetup(){
+  const det = location.hostname.endsWith(".github.io") ? detectRepo() : null;
+  const cur = S.repo || {};
+  return `<div class="card"><span class="label">Turnierleitung anmelden</span>
+    <p class="hint">Nur wer einen Zugangsschlüssel für dieses Repository hat, kann Ergebnisse eintragen. Der Schlüssel bleibt nur in diesem Browser gespeichert.</p>
+    <form id="setupForm" class="panel" style="gap:10px">
+      ${det ? `<p class="hint">Repository: <b>${esc(det.owner)}/${esc(det.repo)}</b></p>` :
+        `<div class="row-in"><input type="text" id="sOwner" placeholder="GitHub-Benutzername" value="${esc(cur.owner || "")}" autocomplete="off" aria-label="GitHub-Benutzername">
+         <input type="text" id="sRepo" placeholder="Repository, z. B. dartturnier" value="${esc(cur.repo || "")}" autocomplete="off" aria-label="Repository"></div>`}
+      <div class="row-in"><input type="password" id="sToken" placeholder="Zugangsschlüssel (github_pat_…)" autocomplete="off" aria-label="Zugangsschlüssel"></div>
+      <div class="row-in"><button class="btn primary" type="submit" id="sBtn">Anmelden</button><button class="btn" type="button" data-act="cancelSetup">Abbrechen</button></div>
+      <p class="hint" id="sErr" role="alert"></p>
+    </form></div>`;
+}
+function renderSpieler(){
+  const list = sortedPlayers(), running = S.config.status === "running";
+  if (running) {
+    const ids = S.config.playerIds || [];
+    return `<div class="card"><span class="label">Teilnehmer · ${ids.length}</span>
+      <ul class="plist">${ids.map(id => `<li><span>${esc(pname(id))}</span></li>`).join("")}</ul>
+      ${S.canWrite ? `<p class="hint">Das Turnier läuft. Um Spieler zu ändern, setze es zurück. Alle Ergebnisse gehen dabei verloren.</p>
+      <div class="row-in"><button class="btn danger ${S.confirm === "reset" ? "armed" : ""}" data-act="reset">${S.confirm === "reset" ? "Wirklich zurücksetzen? Tippen zum Bestätigen" : "Turnier zurücksetzen"}</button></div>` : ""}</div>`;
+  }
+  if (!S.canWrite) return list.length
+    ? `<div class="card"><span class="label">Angemeldet · ${list.length}</span><ul class="plist">${list.map(([, p]) => `<li><span>${esc(p.name)}</span></li>`).join("")}</ul><p class="hint">Der Turnierbaum wird ausgelost, sobald die Anmeldung abgeschlossen ist.</p></div>`
+    : `<div class="empty">Noch keine Spieler angemeldet.</div>`;
+  return `
+    <div class="card"><label class="label" for="tname">Turniername</label>
+      <div class="row-in"><input type="text" id="tname" value="${esc(S.config.name || "")}" placeholder="z. B. Vereinsmeisterschaft 2026" maxlength="60"></div></div>
+    <div class="card"><span class="label">Teilnehmer · ${list.length}</span>
+      <form id="addForm" class="row-in"><input type="text" id="pname" placeholder="Name eingeben (mehrere mit Komma trennen)" autocomplete="off" aria-label="Spielername">
+        <button class="btn primary" type="submit">Hinzufügen</button></form>
+      ${list.length ? `<ul class="plist">${list.map(([id, p]) => `<li><span>${esc(p.name)}</span><button class="x" data-del="${esc(id)}" aria-label="${esc(p.name)} entfernen">×</button></li>`).join("")}</ul>`
+        : `<div class="empty">Noch keine Spieler. Gib oben den ersten Namen ein.</div>`}
+    </div>
+    <div class="card"><span class="label">So wird gespielt</span>
+      <ul class="plan">${planText(list.length).map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+      <div class="row-in"><button class="btn primary ${S.confirm === "draw" ? "armed" : ""}" data-act="draw" ${list.length < 2 ? "disabled" : ""}>${S.confirm === "draw" ? "Teilnehmerliste fix? Tippen zum Auslosen" : "Turnierbaum auslosen"}</button></div>
+    </div>`;
+}
+function renderBaum(b){
+  if (!b) return `<div class="empty">${S.canWrite ? "Noch nicht ausgelost. Trag unter „Spieler“ alle Teilnehmer ein und tippe auf „Turnierbaum auslosen“." : "Der Turnierbaum ist noch nicht ausgelost."}</div>`;
+  const champ = b.champion ? `<div class="champ"><span class="label">Sieger</span><b>${esc(pname(b.champion))}</b></div>` : "";
+  const note = b.k > 0 ? `<p class="hint">${b.k} Platz${b.k > 1 ? "e" : ""} im ${esc(b.main[1]?.label || "")} geht an die Lucky Loser (siehe Reiter „Lucky Loser“).</p>` : "";
+  return `${champ}${note}<div class="bracket">${b.main.map((r, i) => column(r, i === 0)).join("")}</div>
+    ${S.canWrite ? `<p class="hint">Tippe auf ein Spiel, um das Ergebnis einzutragen.</p>` : ""}`;
+}
+function renderLL(b){
+  if (!b || b.k === 0) return `<div class="empty">In diesem Turnier wird keine Lucky-Loser-Runde gebraucht.</div>`;
+  const head = b.losersKnown
+    ? `<p class="hint">Die Verlierer der 1. Runde wurden auf ${b.k} Gruppe${b.k > 1 ? "n" : ""} gelost. Jeder Gruppensieger zieht in das ${esc(b.main[1]?.label || "")} ein.</p>`
+    : `<p class="hint">Sobald alle Spiele der 1. Runde eingetragen sind, werden die Verlierer hier automatisch auf ${b.k} Gruppe${b.k > 1 ? "n" : ""} gelost.</p>`;
+  const BO = `<div class="row-in" style="align-items:center;gap:8px"><span class="label">Legs pro Lucky-Loser-Spiel</span>${boSelect("LL", { matches: b.groups.flatMap(g => g.rounds.flatMap(r => r.matches)) })}</div>`;
+  return head + BO + b.groups.map(g => `<section class="group"><h2>${esc(g.name)}<small>${g.size} Spieler${g.champion && b.losersKnown ? " · weiter: " + esc(pname(g.champion)) : ""}</small></h2>
+    ${g.rounds.length ? `<div class="bracket">${g.rounds.map(r => column(r, false)).join("")}</div>` : `<p class="hint">${b.losersKnown ? esc(pname(g.champion)) + " rückt ohne Spiel nach." : "Ein Spieler rückt ohne Spiel nach."}</p>`}</section>`).join("");
+}
+function renderStats(b){
+  if (!b) return `<div class="empty">Die Statistik startet, sobald der Turnierbaum ausgelost ist.</div>`;
+  const rows = stats(b);
+  return `<div class="tablewrap"><table><thead><tr><th>#</th><th>Spieler</th><th>Sp</th><th>S</th><th>N</th><th>Legs</th><th>Diff</th><th>Status</th></tr></thead><tbody>
+    ${rows.map((r, i) => `<tr><td>${i + 1}</td><td>${esc(pname(r.id))}</td><td>${r.sp}</td><td>${r.s}</td><td>${r.n}</td><td>${r.lf}:${r.la}</td><td>${r.lf - r.la > 0 ? "+" : ""}${r.lf - r.la}</td><td><span class="pill ${r.cls}">${esc(r.status)}</span></td></tr>`).join("")}
+    </tbody></table></div><p class="hint">Freilose zählen nicht als Spiel. Sortiert nach Siegen, dann Leg-Differenz, dann gewonnenen Legs.</p>`;
+}
+function renderSheet(){
+  const root = $("#sheetRoot"), m = S.sheet && S.matchIndex[S.sheet];
+  if (!m) { root.innerHTML = ""; return; }
+  const t = Math.ceil(m.bo / 2), A = pname(m.a), B = pname(m.b);
+  const btn = (l1, l2) => `<button data-score="${l1}:${l2}" class="${m.done && m.l1 === l1 && m.l2 === l2 ? "cur" : ""}">${l1}:${l2}</button>`;
+  const aw = [], bw = []; for (let x = 0; x < t; x++) { aw.push(btn(t, x)); bw.unshift(btn(x, t)); }
+  root.innerHTML = `<div class="sheet-bg" data-close></div><div class="sheet" role="dialog" aria-label="Ergebnis eintragen">
+    <h3>${esc(A)} – ${esc(B)}</h3><span class="hint">Best of ${m.bo} · Ergebnis aus Sicht von ${esc(A)}</span>
+    <div class="scoregrp"><span class="label">${esc(A)} gewinnt</span><div class="scores">${aw.join("")}</div></div>
+    <div class="scoregrp"><span class="label">${esc(B)} gewinnt</span><div class="scores">${bw.join("")}</div></div>
+    ${m.done ? `<p class="hint">Änderst du das Ergebnis und damit den Sieger, werden spätere Ergebnisse dieses Spielers ungültig.</p>` : ""}
+    <div class="row-in">${m.done ? `<button class="btn danger" data-clear>Ergebnis löschen</button>` : ""}<button class="btn" data-close>Schließen</button></div></div>`;
+}
+const hhmm = t => new Date(t).toLocaleTimeString("de-DE", { hour:"2-digit", minute:"2-digit" });
+function statusLine(n, running, b){
+  const base = `${n} Spieler · ${running ? (b?.champion ? "beendet" : "läuft") : "Anmeldung offen"}`;
+  if (S.mode === "admin") {
+    const st = { ok:"gespeichert", pending:"speichert …", err:"nicht gespeichert" }[S.saveState] || "";
+    return `${base} · Turnierleitung · <span class="save ${S.saveState}">${st}</span>${S.saveState === "err" ? ` <button class="linkbtn" data-act="retry">Erneut speichern</button>` : ""}`;
+  }
+  return `${base}${S.config.updatedAt ? " · Stand " + hhmm(S.config.updatedAt) + " Uhr" : ""}`;
+}
+function render(){
+  if (!S.loaded.c) return;
+  const running = S.config.status === "running";
+  S.matchIndex = {};
+  const b = running ? build() : null; S.built = b;
+  if (!S.tab) S.tab = running || S.mode === "viewer" ? "baum" : "spieler";
+  $("#title").textContent = S.config.name || "Dartturnier";
+  const n = running ? (S.config.playerIds || []).length : Object.keys(S.players).length;
+  $("#sub").innerHTML = statusLine(n, running, b);
+  const tabs = [["baum","Turnierbaum"]];
+  if (b && b.k > 0) tabs.push(["ll","Lucky Loser"]);
+  tabs.push(["stats","Statistik"], ["spieler","Spieler"]);
+  if (S.mode === "admin" && !running) tabs.unshift(tabs.pop());
+  if (!tabs.some(t => t[0] === S.tab)) S.tab = "baum";
+  $("#tabs").innerHTML = S.setup ? "" : tabs.map(([k, l]) => `<button role="tab" data-tab="${k}" aria-selected="${S.tab === k}">${l}</button>`).join("");
+  const active = document.activeElement?.id;
+  const keep = { pname: $("#pname")?.value, tname: active === "tname" ? $("#tname")?.value : undefined };
+  let body;
+  if (S.setup) body = renderSetup();
+  else if (S.mode === "viewer" && S.missing) body = `<div class="empty">Hier ist noch kein Turnier angelegt.</div>`;
+  else body = S.tab === "spieler" ? renderSpieler() : S.tab === "baum" ? renderBaum(b) : S.tab === "ll" ? renderLL(b) : renderStats(b);
+  if (!S.setup && S.mode === "viewer") body += `<p class="hint">Die Seite lädt den Stand jede Minute neu. Neue Ergebnisse können bis zu etwa 5 Minuten verzögert erscheinen.</p>`;
+  $("#main").innerHTML = body;
+  $("#foot").innerHTML = S.setup ? "" : S.mode === "admin"
+    ? `<button class="linkbtn" data-act="logout">Turnierleitung abmelden</button>`
+    : `<button class="linkbtn" data-act="login">Turnierleitung</button>${S.lastFetch ? ` · zuletzt geladen ${hhmm(S.lastFetch)} Uhr` : ""}`;
+  if (keep.pname && $("#pname")) $("#pname").value = keep.pname;
+  if (keep.tname !== undefined && $("#tname")) $("#tname").value = keep.tname;
+  if (active === "pname" || active === "tname") $("#" + active)?.focus();
+  renderSheet();
+}
+
+/* ---------- Ereignisse ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-tab],[data-act],[data-del],[data-m],[data-score],[data-clear],[data-close]");
+  if (!t) return;
+  const act = t.dataset.act;
+  if (t.dataset.tab) { S.tab = t.dataset.tab; S.confirm = null; render(); return; }
+  if (act === "login") { S.setup = true; render(); $("#sToken")?.focus(); return; }
+  if (act === "cancelSetup") { S.setup = false; render(); return; }
+  if (act === "logout") return disconnect();
+  if (act === "retry") { dirty = true; push(); return; }
+  if (!S.canWrite) return;
+  if (act === "draw") return arm("draw", draw);
+  if (act === "reset") return arm("reset", resetT);
+  if (t.dataset.del) { delete S.players[t.dataset.del]; save(); return; }
+  if (t.hasAttribute("data-close")) { S.sheet = null; renderSheet(); return; }
+  const m = S.sheet && S.matchIndex[S.sheet];
+  if (t.dataset.score && m) {
+    const [l1, l2] = t.dataset.score.split(":").map(Number);
+    S.results[m.id] = { p1:m.a, p2:m.b, l1, l2, drawId:S.config.drawId, at:Date.now() };
+    S.sheet = null; save(); return;
+  }
+  if (t.hasAttribute("data-clear") && m) { delete S.results[m.id]; S.sheet = null; save(); return; }
+  if (t.dataset.m && t.getAttribute("aria-disabled") !== "true") { S.sheet = t.dataset.m; renderSheet(); }
+});
+document.addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches?.(".match[aria-disabled='false']")) { e.preventDefault(); e.target.click(); }
+  if (e.key === "Escape" && S.sheet) { S.sheet = null; renderSheet(); }
+});
+document.addEventListener("submit", async e => {
+  e.preventDefault();
+  if (e.target.id === "addForm") { const inp = $("#pname"); const v = inp.value; inp.value = ""; addPlayers(v); return; }
+  if (e.target.id === "setupForm") {
+    const det = location.hostname.endsWith(".github.io") ? detectRepo() : null;
+    const owner = det ? det.owner : $("#sOwner").value.trim(), repo = det ? det.repo : $("#sRepo").value.trim(), token = $("#sToken").value.trim();
+    if (!owner || !repo || !token) { $("#sErr").textContent = "Bitte alle Felder ausfüllen."; return; }
+    $("#sBtn").disabled = true; $("#sErr").textContent = "Verbinde mit GitHub …";
+    try { await connect(token, owner, repo); S.tab = null; render(); toast("Angemeldet als Turnierleitung"); }
+    catch (err) { S.token = null; $("#sErr").textContent = err.message.startsWith("read") || err.message.startsWith("branch") || err.message.startsWith("create") ? "Anlegen der Turnierdatei hat nicht geklappt. Hat der Schlüssel Schreibrechte für „Contents“?" : err.message; $("#sBtn").disabled = false; }
+  }
+});
+document.addEventListener("change", e => {
+  if (!S.canWrite) return;
+  if (e.target.id === "tname") { const v = e.target.value.trim().slice(0, 60); if (v !== (S.config.name || "")) { S.config.name = v; save(); } }
+  if (e.target.dataset.bo) { S.config.bestOf[e.target.dataset.bo] = Number(e.target.value); save(); }
+});
+window.addEventListener("beforeunload", e => { if (dirty || saving) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ---------- Start ---------- */
+(async () => {
+  S.repo = detectRepo();
+  const token = LS.get("dt_token");
+  if (token && S.repo) {
+    try { await connect(token, S.repo.owner, S.repo.repo); render(); return; }
+    catch { S.token = null; toast("Anmeldung als Turnierleitung fehlgeschlagen. Du siehst die Zuschaueransicht."); }
+  }
+  if (location.hash === "#leitung") S.setup = true;
+  await viewerLoad();
+  setInterval(() => { if (S.mode === "viewer" && !S.setup && document.visibilityState === "visible") viewerLoad(); }, POLL_MS);
+})();
+
+</script>
+</body>
+</html>
