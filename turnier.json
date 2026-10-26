@@ -1,6 +1,6 @@
 {
  "name": "Dartturnier",
- "status": "setup",
+ "status": "running",
  "players": {
   "ln9rmisn": {
    "name": "Basti",
@@ -28,9 +28,15 @@
   "R2": 5,
   "R3": 7
  },
- "playerIds": [],
- "updatedAt": 1793050764324,
- "seed": 170001275,
- "drawId": null,
- "drawnAt": 1793050727689
+ "playerIds": [
+  "ln9rmisn",
+  "kifp0xt9",
+  "2chpy26y",
+  "tyo6cuoe",
+  "7fuak9hu"
+ ],
+ "updatedAt": 1793050767612,
+ "seed": 660369407,
+ "drawId": "6w5b2pm5",
+ "drawnAt": 1793050767612
 }
