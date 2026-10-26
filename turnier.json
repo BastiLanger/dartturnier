@@ -24,7 +24,9 @@
   }
  },
  "results": {},
- "bestOf": {},
+ "bestOf": {
+  "R2": 5
+ },
  "playerIds": [
   "ln9rmisn",
   "kifp0xt9",
@@ -32,7 +34,7 @@
   "2chpy26y",
   "tyo6cuoe"
  ],
- "updatedAt": 1793050727689,
+ "updatedAt": 1793050736664,
  "seed": 170001275,
  "drawId": "zpqqf0nu",
  "drawnAt": 1793050727689
