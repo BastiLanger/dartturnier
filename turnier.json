@@ -31,6 +31,14 @@
    "l2": 1,
    "drawId": "6w5b2pm5",
    "at": 1793050818419
+  },
+  "R1-1": {
+   "p1": "7fuak9hu",
+   "p2": "2chpy26y",
+   "l1": 1,
+   "l2": 2,
+   "drawId": "6w5b2pm5",
+   "at": 1793050832048
   }
  },
  "bestOf": {
@@ -44,7 +52,7 @@
   "tyo6cuoe",
   "7fuak9hu"
  ],
- "updatedAt": 1793050818419,
+ "updatedAt": 1793050832048,
  "seed": 660369407,
  "drawId": "6w5b2pm5",
  "drawnAt": 1793050767612
