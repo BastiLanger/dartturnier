@@ -45,6 +45,10 @@
   "xugtc4bs": {
    "name": "spieler 11",
    "createdAt": 1793129520627
+  },
+  "yzaq2u1y": {
+   "name": "spieler 12",
+   "createdAt": 1793129522943
   }
  },
  "results": {},
@@ -53,7 +57,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129520627,
+ "updatedAt": 1793129522943,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
