@@ -65,6 +65,10 @@
   "wccaz941": {
    "name": "spieler 16",
    "createdAt": 1793129530585
+  },
+  "9fzdd7qw": {
+   "name": "spieler 17",
+   "createdAt": 1793129533485
   }
  },
  "results": {},
@@ -73,7 +77,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129530585,
+ "updatedAt": 1793129533485,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
