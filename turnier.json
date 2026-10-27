@@ -37,6 +37,10 @@
   "q0dc322b": {
    "name": "spieler 9",
    "createdAt": 1793129516432
+  },
+  "hp71atxw": {
+   "name": "spieler 10",
+   "createdAt": 1793129518271
   }
  },
  "results": {},
@@ -45,7 +49,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129516432,
+ "updatedAt": 1793129518271,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
