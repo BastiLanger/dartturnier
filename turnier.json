@@ -53,6 +53,10 @@
   "m7pj671w": {
    "name": "spieler 13",
    "createdAt": 1793129525055
+  },
+  "92n04r2r": {
+   "name": "spieler 14",
+   "createdAt": 1793129526438
   }
  },
  "results": {},
@@ -61,7 +65,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129525055,
+ "updatedAt": 1793129526438,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
