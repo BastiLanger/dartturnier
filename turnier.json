@@ -25,6 +25,10 @@
   "8ggij2e7": {
    "name": "spieler 6",
    "createdAt": 1793129509095
+  },
+  "rx8nsh6j": {
+   "name": "spieler 7",
+   "createdAt": 1793129510804
   }
  },
  "results": {},
@@ -33,7 +37,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129509095,
+ "updatedAt": 1793129510804,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
