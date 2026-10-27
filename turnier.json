@@ -33,6 +33,16 @@
    "avg2": 35,
    "drawId": "t15j26lb",
    "at": 1793129125343
+  },
+  "R1-1": {
+   "p1": "tyo6cuoe",
+   "p2": "7fuak9hu",
+   "l1": 2,
+   "l2": 0,
+   "avg1": 35,
+   "avg2": 35,
+   "drawId": "t15j26lb",
+   "at": 1793129131794
   }
  },
  "bestOf": {
@@ -46,7 +56,7 @@
   "tyo6cuoe",
   "7fuak9hu"
  ],
- "updatedAt": 1793129125343,
+ "updatedAt": 1793129131794,
  "seed": 3895405398,
  "drawId": "t15j26lb",
  "drawnAt": 1793129003791
