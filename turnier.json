@@ -57,6 +57,10 @@
   "92n04r2r": {
    "name": "spieler 14",
    "createdAt": 1793129526438
+  },
+  "iw7sroks": {
+   "name": "spieler15",
+   "createdAt": 1793129527871
   }
  },
  "results": {},
@@ -65,7 +69,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129526438,
+ "updatedAt": 1793129527871,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
