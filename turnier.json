@@ -43,6 +43,19 @@
    "avg2": 35,
    "drawId": "t15j26lb",
    "at": 1793129131794
+  },
+  "VR-0": {
+   "members": [
+    "kifp0xt9",
+    "7fuak9hu"
+   ],
+   "winner": "kifp0xt9",
+   "avgs": {
+    "kifp0xt9": 30,
+    "7fuak9hu": 15
+   },
+   "drawId": "t15j26lb",
+   "at": 1793129152291
   }
  },
  "bestOf": {
@@ -56,7 +69,7 @@
   "tyo6cuoe",
   "7fuak9hu"
  ],
- "updatedAt": 1793129131794,
+ "updatedAt": 1793129152291,
  "seed": 3895405398,
  "drawId": "t15j26lb",
  "drawnAt": 1793129003791
