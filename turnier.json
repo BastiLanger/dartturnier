@@ -23,7 +23,18 @@
    "createdAt": 1793050764324
   }
  },
- "results": {},
+ "results": {
+  "R1-0": {
+   "p1": "ln9rmisn",
+   "p2": "kifp0xt9",
+   "l1": 2,
+   "l2": 0,
+   "avg1": 40,
+   "avg2": 35,
+   "drawId": "t15j26lb",
+   "at": 1793129125343
+  }
+ },
  "bestOf": {
   "R2": 5,
   "R3": 7
@@ -35,7 +46,7 @@
   "tyo6cuoe",
   "7fuak9hu"
  ],
- "updatedAt": 1793129003791,
+ "updatedAt": 1793129125343,
  "seed": 3895405398,
  "drawId": "t15j26lb",
  "drawnAt": 1793129003791
