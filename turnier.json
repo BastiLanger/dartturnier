@@ -29,6 +29,10 @@
   "rx8nsh6j": {
    "name": "spieler 7",
    "createdAt": 1793129510804
+  },
+  "i1w2f0ad": {
+   "name": "spieler 8",
+   "createdAt": 1793129511852
   }
  },
  "results": {},
@@ -37,7 +41,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129510804,
+ "updatedAt": 1793129511852,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
