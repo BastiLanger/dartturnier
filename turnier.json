@@ -1,6 +1,6 @@
 {
  "name": "Dartturnier",
- "status": "running",
+ "status": "setup",
  "players": {
   "ln9rmisn": {
    "name": "Basti",
@@ -23,64 +23,14 @@
    "createdAt": 1793050764324
   }
  },
- "results": {
-  "R1-0": {
-   "p1": "ln9rmisn",
-   "p2": "kifp0xt9",
-   "l1": 2,
-   "l2": 0,
-   "avg1": 40,
-   "avg2": 35,
-   "drawId": "t15j26lb",
-   "at": 1793129125343
-  },
-  "R1-1": {
-   "p1": "tyo6cuoe",
-   "p2": "7fuak9hu",
-   "l1": 2,
-   "l2": 0,
-   "avg1": 35,
-   "avg2": 35,
-   "drawId": "t15j26lb",
-   "at": 1793129131794
-  },
-  "VR-0": {
-   "members": [
-    "kifp0xt9",
-    "7fuak9hu"
-   ],
-   "winner": "kifp0xt9",
-   "avgs": {
-    "kifp0xt9": 30,
-    "7fuak9hu": 15
-   },
-   "drawId": "t15j26lb",
-   "at": 1793129152291
-  },
-  "R1-x": {
-   "p1": "2chpy26y",
-   "p2": "kifp0xt9",
-   "l1": 2,
-   "l2": 0,
-   "avg1": 80,
-   "avg2": 30,
-   "drawId": "t15j26lb",
-   "at": 1793129170416
-  }
- },
+ "results": {},
  "bestOf": {
   "R2": 5,
   "R3": 7
  },
- "playerIds": [
-  "ln9rmisn",
-  "kifp0xt9",
-  "2chpy26y",
-  "tyo6cuoe",
-  "7fuak9hu"
- ],
- "updatedAt": 1793129170416,
+ "playerIds": [],
+ "updatedAt": 1793129501991,
  "seed": 3895405398,
- "drawId": "t15j26lb",
+ "drawId": null,
  "drawnAt": 1793129003791
 }
