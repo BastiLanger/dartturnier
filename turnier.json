@@ -41,6 +41,10 @@
   "hp71atxw": {
    "name": "spieler 10",
    "createdAt": 1793129518271
+  },
+  "xugtc4bs": {
+   "name": "spieler 11",
+   "createdAt": 1793129520627
   }
  },
  "results": {},
@@ -49,7 +53,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129518271,
+ "updatedAt": 1793129520627,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
