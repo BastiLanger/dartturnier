@@ -21,6 +21,10 @@
   "7fuak9hu": {
    "name": "Wolf",
    "createdAt": 1793050764324
+  },
+  "qwlqyttu": {
+   "name": "Basti",
+   "createdAt": 1793128984368
   }
  },
  "results": {},
@@ -29,7 +33,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793128966126,
+ "updatedAt": 1793128984368,
  "seed": 660369407,
  "drawId": null,
  "drawnAt": 1793050767612
