@@ -61,6 +61,10 @@
   "iw7sroks": {
    "name": "spieler15",
    "createdAt": 1793129527871
+  },
+  "wccaz941": {
+   "name": "spieler 16",
+   "createdAt": 1793129530585
   }
  },
  "results": {},
@@ -69,7 +73,7 @@
   "R3": 7
  },
  "playerIds": [],
- "updatedAt": 1793129527871,
+ "updatedAt": 1793129530585,
  "seed": 3895405398,
  "drawId": null,
  "drawnAt": 1793129003791
